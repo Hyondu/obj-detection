@@ -20,6 +20,7 @@ sentiments = ["Positive", "Neutral", "Negative"]
 while True:
   # Capture frame-by-frame from the video feed
   ret, frame = video_capture.read()
+  
   height, width = frame.shape[:2]
 
   # Prepare the frame for YOLO model
