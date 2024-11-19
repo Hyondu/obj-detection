@@ -5,6 +5,7 @@ import random
 import sys
 import os
 import yaml
+import time
 
 from face_recognition.face_detection.scrfd.detector import SCRFD
 from face_recognition.face_tracking.tracker.byte_tracker import BYTETracker
@@ -88,6 +89,11 @@ detector = SCRFD(model_file="face_recognition/face_detection/scrfd/weights/scrfd
 face_tracker = BYTETracker(args=config_tracking, frame_rate=30)
 frame_id = 0
 
+
+cor_ts = time.time()
+
+check_st = 0
+M_iou = 0
 while True:
   # Capture frame-by-frame from the video feed
   ret, frame = video_capture.read()
@@ -143,7 +149,21 @@ while True:
             online_tlwhs.append(tlwh)
             online_ids.append(tid)
             online_scores.append(t.score)
-            iou, hand_result = compute_iou_boxs(t.tlbr_face, hand_boxes)
+            check_nt = time.time()
+            
+            if check_nt - check_st  < 5:
+              t_iou, hand_result = compute_iou_boxs(t.tlbr_face, hand_boxes)
+              if t_iou > 0.05:
+                  check_st = time.time()
+                  M_iou = t_iou
+              iou = M_iou
+            else:
+              iou, hand_result = compute_iou_boxs(t.tlbr_face, hand_boxes)
+              if iou > 0.05:
+                  check_st = time.time()
+                  M_iou = iou
+            
+                  
     online_im = plot_tracking(
         img_info["raw_img"],
         online_tlwhs,
